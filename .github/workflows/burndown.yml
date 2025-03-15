@@ -1,36 +1,30 @@
-name: Generate Burndown Chart
+name: Update Burndown Chart
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  issues:
+    types: [opened]
 
 jobs:
-  generate_burndown_chart:
+  update-chart:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+      - name: Install Dependencies
+        run: pip install matplotlib requests
 
-      - name: Install dependencies
+      - name: Run Burndown Script
+        run: python burndown_chart.py
+
+      - name: Configure Git user
         run: |
-          pip install pandas matplotlib openpyxl
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Generate Burndown Chart
+      - name: Add burndown chart and commit
         run: |
-          python burndown_chart.py
-
-      - name: Upload burndown_chart.png as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: burndown_chart
-          path: burndown_chart.png  # ชี้ไปยังไฟล์ที่ต้องการอัปโหลด
+          git add burndown_chart.png
+          git status  # ตรวจสอบว่าไฟล์ถูกเพิ่มหรือไม่
+          git commit -m "Update Burndown Chart" || echo "No changes to commit"
+          git push
