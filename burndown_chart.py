@@ -15,17 +15,21 @@ url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues?state=all"
 response = requests.get(url, headers=headers)
 issues = response.json()
 
-# 🔹 คำนวณจำนวน Task ที่เหลืออยู่ในแต่ละวัน
-start_date = datetime.today() - timedelta(days=7)  # Sprint เริ่ม 7 วันก่อน
-end_date = datetime.today()
-days = (end_date - start_date).days + 1
+# 🔹 กำหนด start_date และ end_date ให้ถูกต้อง
+start_date = datetime.today() - timedelta(days=7)  # 7 วันก่อน
+end_date = datetime.today()  # วันที่ปัจจุบัน
+days = (end_date - start_date).days + 1  # รวมทั้งวันที่เริ่มต้นและวันที่สิ้นสุด
 
 remaining_tasks = []
 for day in range(days):
     date = start_date + timedelta(days=day)
     remaining = sum(1 for issue in issues if "closed_at" in issue and 
-                    (issue["closed_at"] is None or datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ") > date))
+                    (issue["closed_at"] is None or 
+                    datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ") > date))
     remaining_tasks.append(remaining)
+
+    # ตรวจสอบดูว่า print จำนวน remaining แต่ละวันเพื่อ debug
+    print(f"Day {day + 1} ({date.date()}): {remaining} remaining tasks")
 
 # 🔹 สร้าง Burndown Chart
 plt.figure(figsize=(8, 5))
