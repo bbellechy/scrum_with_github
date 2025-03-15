@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 # 🔹 ตั้งค่าข้อมูล GitHub
-GITHUB_TOKEN = "your_github_token"  # 🔺 เปลี่ยนเป็น Token ของคุณ
+GITHUB_TOKEN = "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"  # 🔺 เปลี่ยนเป็น Token ของคุณ
 REPO_OWNER = "bbellechy"
 REPO_NAME = "projects"
 
