@@ -14,20 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
       - name: Install Dependencies
         run: pip install matplotlib requests
 
-      - name: Pull latest changes from remote
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull origin main --rebase  # ดึงข้อมูลล่าสุดจาก remote ก่อน
-
       - name: Run Burndown Script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python burndown_chart.py
 
-      - name: Commit and Push Chart
-        run: |
-          git add burndown_chart.png
-          git commit -m "Update Burndown Chart"
-          git push origin main
