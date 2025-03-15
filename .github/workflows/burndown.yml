@@ -1,8 +1,11 @@
 name: Update Burndown Chart
 
 on:
-  issues:
-    types: [opened]
+  schedule:
+    - cron: "0 0 * * *"  # รันทุกวันเที่ยงคืน UTC
+  push:
+    branches:
+      - main  # หรือ branches ที่คุณต้องการให้ workflow ทำงาน
 
 jobs:
   update-chart:
@@ -14,17 +17,17 @@ jobs:
       - name: Install Dependencies
         run: pip install matplotlib requests
 
-      - name: Run Burndown Script
-        run: python burndown_chart.py
-
-      - name: Configure Git user
+      - name: Pull latest changes from remote
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main --rebase  # ดึงข้อมูลล่าสุดจาก remote ก่อน
 
-      - name: Add burndown chart and commit
+      - name: Run Burndown Script
+        run: python burndown_chart.py
+
+      - name: Commit and Push Chart
         run: |
           git add burndown_chart.png
-          git status  # ตรวจสอบว่าไฟล์ถูกเพิ่มหรือไม่
-          git commit -m "Update Burndown Chart" || echo "No changes to commit"
-          git push
+          git commit -m "Update Burndown Chart"
+          git push origin main
