@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # 🔹 ตั้งค่าข้อมูล GitHub
-GITHUB_TOKEN = "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"  # 🔺 เปลี่ยนเป็น Token ของคุณ
+GITHUB_TOKEN = "your_github_token"  # 🔺 เปลี่ยนเป็น Token ของคุณ
 REPO_OWNER = "bbellechy"
 REPO_NAME = "projects"
 
@@ -11,11 +11,17 @@ REPO_NAME = "projects"
 headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues?state=open"
 response = requests.get(url, headers=headers)
+
+# 🔹 ตรวจสอบว่าการดึงข้อมูลสำเร็จหรือไม่
+if response.status_code != 200:
+    print(f"❌ Error {response.status_code}: {response.text}")
+    exit(1)  # ออกจากโปรแกรมถ้ามีข้อผิดพลาด
+
 issues = response.json()
 
 # 🔹 คำนวณจำนวน Issue ที่เปิดอยู่ในวันนี้
 today = datetime.today().date()
-open_issues = sum(1 for issue in issues if issue.get("created_at"))
+open_issues = sum(1 for issue in issues if "created_at" in issue)
 
 # 🔹 สร้างกราฟ (แสดงเฉพาะ 1 วัน)
 plt.figure(figsize=(5, 5))
