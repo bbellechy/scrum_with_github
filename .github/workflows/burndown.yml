@@ -3,10 +3,10 @@ name: Generate Burndown Chart
 on:
   push:
     branches:
-      - main  # หรือชื่อ branch ที่คุณใช้
+      - main
   pull_request:
     branches:
-      - main  # หรือชื่อ branch ที่คุณใช้
+      - main
 
 jobs:
   generate_burndown_chart:
@@ -28,3 +28,9 @@ jobs:
       - name: Generate Burndown Chart
         run: |
           python burndown_chart.py
+
+      - name: Upload burndown_chart.png as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: burndown_chart
+          path: burndown_chart.png  # ชี้ไปยังไฟล์ที่ต้องการอัปโหลด
