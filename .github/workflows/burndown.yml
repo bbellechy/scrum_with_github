@@ -1,64 +1,30 @@
-name: Burndown Chart Generation
+name: Generate Burndown Chart
 
 on:
-  workflow_dispatch:  # เรียกใช้งานได้เมื่อกดปุ่มใน GitHub UI
+  push:
+    branches:
+      - main  # หรือชื่อ branch ที่คุณใช้
+  pull_request:
+    branches:
+      - main  # หรือชื่อ branch ที่คุณใช้
 
 jobs:
   generate_burndown_chart:
     runs-on: ubuntu-latest
 
     steps:
-      # ขั้นตอนที่ 1: Checkout code
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      # ขั้นตอนที่ 2: ตั้งค่า Python environment
-      - name: Set up Python 3.x
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
 
-      # ขั้นตอนที่ 3: ติดตั้ง dependencies ที่จำเป็น
       - name: Install dependencies
         run: |
-          pip install requests pandas matplotlib openpyxl
+          pip install pandas matplotlib openpyxl
 
-      # ขั้นตอนที่ 4: รันสคริปต์ Python เพื่อสร้าง Burndown Chart
-      - name: Generate Burndown Chart from Excel
+      - name: Generate Burndown Chart
         run: |
-          python <<EOF
-          import pandas as pd
-          import matplotlib.pyplot as plt
-          from datetime import datetime
-
-          # 🔹 โหลดข้อมูลจาก Excel
-          df = pd.read_excel("./burndown.xlsx")  # ตั้งชื่อไฟล์ให้ถูกต้อง
-
-          # 🔹 ตรวจสอบข้อมูลใน DataFrame (ใช้ตรวจสอบก่อนรัน)
-          print(df.head())  # ใช้คำสั่งนี้เพื่อให้เห็นข้อมูลก่อนสร้างกราฟ
-
-          # 🔹 สร้างกราฟ Burndown จากข้อมูลใน Excel
-          # สมมติว่า DataFrame มีคอลัมน์ 'Date' และ 'Remaining Issues'
-          df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-
-          plt.figure(figsize=(8, 5))
-          plt.plot(df['Date'], df['Remaining Issues'], marker="o", linestyle="-", color="b", label="Remaining Issues")
-
-          # 🔹 ตั้งค่ากราฟ
-          plt.xlabel("Date")
-          plt.ylabel("Remaining Issues")
-          plt.title("Sprint Burndown Chart")
-          plt.xticks(rotation=45)
-          plt.legend()
-          plt.grid(True)
-
-          # 🔹 บันทึกกราฟเป็นไฟล์
-          plt.savefig("burndown_chart.png")
-          EOF
-
-      # ขั้นตอนที่ 5: อัปโหลดไฟล์ burndown_chart.png
-      - name: Upload Burndown Chart
-        uses: actions/upload-artifact@v2
-        with:
-          name: burndown-chart
-          path: burndown_chart.png
+          python burndown_chart.py
