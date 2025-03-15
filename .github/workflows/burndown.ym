@@ -1,0 +1,30 @@
+name: Update Burndown Chart
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  update-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: pip install matplotlib requests
+
+      - name: Run Burndown Script
+        run: python burndown_chart.py
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add burndown chart and commit
+        run: |
+          git add burndown_chart.png
+          git status  # ตรวจสอบว่าไฟล์ถูกเพิ่มหรือไม่
+          git commit -m "Update Burndown Chart" || echo "No changes to commit"
+          git push
