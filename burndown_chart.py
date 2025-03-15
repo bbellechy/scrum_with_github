@@ -2,7 +2,7 @@ import requests
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-# 🔹 กำหนดค่า GitHub Repository และ Token
+# 🔹 ตั้งค่าข้อมูล GitHub
 GITHUB_TOKEN = "your_github_token"  # 🔺 เปลี่ยนเป็น Token ของคุณ
 REPO_OWNER = "bbellechy"
 REPO_NAME = "projects"
@@ -11,7 +11,20 @@ REPO_NAME = "projects"
 headers = {"Authorization": f"token {GITHUB_TOKEN}"}
 url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues?state=all&per_page=100"
 response = requests.get(url, headers=headers)
-issues = response.json()
+
+# 🔹 ตรวจสอบว่า API ตอบกลับสำเร็จหรือไม่
+if response.status_code != 200:
+    print(f"❌ Error {response.status_code}: {response.text}")
+    exit(1)
+
+try:
+    issues = response.json()  # แปลงเป็น JSON
+    if not isinstance(issues, list):  # ตรวจสอบว่าเป็น List หรือไม่
+        print(f"❌ Unexpected response format: {issues}")
+        exit(1)
+except Exception as e:
+    print(f"❌ JSON decode error: {e}")
+    exit(1)
 
 # 🔹 กำหนดช่วง 7 วันล่าสุด
 end_date = datetime.today()
@@ -21,7 +34,8 @@ date_list = [(start_date + timedelta(days=i)).date() for i in range(7)]
 # 🔹 นับจำนวน Issue ที่ยังเปิดอยู่ในแต่ละวัน
 remaining_tasks = []
 for current_date in date_list:
-    open_issues = sum(1 for issue in issues if issue.get("created_at") and
+    open_issues = sum(1 for issue in issues if isinstance(issue, dict) and
+                      issue.get("created_at") and
                       datetime.strptime(issue["created_at"], "%Y-%m-%dT%H:%M:%SZ").date() <= current_date and
                       (not issue.get("closed_at") or datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ").date() > current_date))
     
